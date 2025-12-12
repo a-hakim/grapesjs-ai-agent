@@ -4,7 +4,9 @@
   "description": "GrapesJS AI Agent",
   "main": "dist/index.js",
   "scripts": {
-    "start": "grapesjs-cli serve",
+    "start": "npm-run-all --parallel serve backend",
+    "serve": "grapesjs-cli serve",
+    "backend": "node scripts/demo-server.js",
     "build": "grapesjs-cli build",
     "bump": "npm version patch -m 'Bump v%s'"
   },
@@ -13,7 +15,8 @@
     "plugin"
   ],
   "devDependencies": {
-    "grapesjs-cli": "^4.1.3"
+    "grapesjs-cli": "^4.1.3",
+    "npm-run-all": "^4.1.5"
   },
   "license": "MIT",
   "author": "a-hakim"

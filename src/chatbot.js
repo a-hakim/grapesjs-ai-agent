@@ -108,14 +108,21 @@ export default (editor, opts = {}, state, fabModule, apiModule) => {
    */
   const handleSubmit = async () => {
     const message = inputEl.value.trim();
-    const components = [...state.pendingComponents];
+    let components = [...state.pendingComponents];
+
+    // If no new components selected, use last used components for context continuity
+    if (components.length === 0 && state.lastUsedComponents.length > 0) {
+      components = [...state.lastUsedComponents];
+    }
 
     if (!message && components.length === 0) {
       return;
     }
 
-    // Disable input during submission
-    setSubmitting(true);
+    // Remember these components for follow-up conversations
+    if (components.length > 0) {
+      state.lastUsedComponents = [...components];
+    }
 
     // Add user message to history
     const userMessage = {
@@ -131,6 +138,10 @@ export default (editor, opts = {}, state, fabModule, apiModule) => {
     state.pendingComponents = [];
     renderBadges();
     renderMessages();
+
+    // Disable input during submission and show loading indicator
+    // (Must be AFTER renderMessages to avoid being cleared)
+    setSubmitting(true);
 
     // Send to API
     try {
@@ -300,10 +311,72 @@ export default (editor, opts = {}, state, fabModule, apiModule) => {
   };
 
   /**
+   * Positions the panel intelligently based on FAB location
+   */
+  const updatePanelPosition = () => {
+    if (!panel || !fabModule) return;
+
+    const fab = fabModule.getFAB();
+    if (!fab) return;
+
+    const container = editor.getContainer() || document.body;
+    const containerRect = container.getBoundingClientRect();
+    const fabRect = fab.getBoundingClientRect();
+    const panelWidth = opts.panelWidth || 360;
+    const panelHeight = opts.panelHeight || 480;
+
+    // Calculate FAB position relative to container
+    const fabX = fabRect.left - containerRect.left;
+    const fabY = fabRect.top - containerRect.top;
+    const fabCenterX = fabX + fabRect.width / 2;
+    const fabCenterY = fabY + fabRect.height / 2;
+
+    // Determine available space in each direction
+    const spaceRight = containerRect.width - fabRect.right + containerRect.left;
+    const spaceLeft = fabX;
+    const spaceBottom = containerRect.height - fabRect.bottom + containerRect.top;
+    const spaceTop = fabY;
+
+    let panelX, panelY;
+    const gap = 10; // Gap between FAB and panel
+
+    // Horizontal positioning: prefer right of FAB, then left
+    if (spaceRight >= panelWidth + gap) {
+      // Position to the right of FAB
+      panelX = fabX + fabRect.width + gap;
+    } else if (spaceLeft >= panelWidth + gap) {
+      // Position to the left of FAB
+      panelX = fabX - panelWidth - gap;
+    } else {
+      // Center horizontally, align with FAB
+      panelX = Math.max(gap, Math.min(fabCenterX - panelWidth / 2, containerRect.width - panelWidth - gap));
+    }
+
+    // Vertical positioning: prefer above FAB, then below, then align
+    if (spaceTop >= panelHeight + gap) {
+      // Position above FAB
+      panelY = fabY - panelHeight - gap;
+    } else if (spaceBottom >= panelHeight + gap) {
+      // Position below FAB
+      panelY = fabY + fabRect.height + gap;
+    } else {
+      // Align vertically with FAB center
+      panelY = Math.max(gap, Math.min(fabCenterY - panelHeight / 2, containerRect.height - panelHeight - gap));
+    }
+
+    // Apply position
+    panel.style.right = 'auto';
+    panel.style.bottom = 'auto';
+    panel.style.left = `${panelX}px`;
+    panel.style.top = `${panelY}px`;
+  };
+
+  /**
    * Opens the chatbot panel
    */
   const openPanel = () => {
     if (panel) {
+      updatePanelPosition();
       panel.classList.add(`${pfx}-open`);
       inputEl.focus();
     }

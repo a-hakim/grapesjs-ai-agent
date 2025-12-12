@@ -66,6 +66,9 @@ export default (editor, opts = {}) => {
     // Component IDs pending submission
     pendingComponents: [],
     
+    // Last used component IDs (for follow-up conversations)
+    lastUsedComponents: [],
+    
     // Whether the chatbot panel is open
     isOpen: false,
     

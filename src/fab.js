@@ -13,10 +13,14 @@ const chatIcon = `
 export default (editor, opts = {}, state) => {
   const pfx = opts.classPrefix || 'gaia';
   const storageKey = `${pfx}-fab-position`;
+  const DRAG_THRESHOLD = 5; // pixels before considering it a drag
   
   let fab = null;
-  let isDragging = false;
-  let dragOffset = { x: 0, y: 0 };
+  let startX = 0;
+  let startY = 0;
+  let startLeft = 0;
+  let startTop = 0;
+  let hasDragged = false;
 
   /**
    * Creates the FAB element and injects it into the DOM
@@ -31,20 +35,14 @@ export default (editor, opts = {}, state) => {
     // Apply saved or default position
     const savedPosition = getSavedPosition();
     if (savedPosition) {
-      fab.style.right = 'auto';
-      fab.style.bottom = 'auto';
-      fab.style.left = `${savedPosition.x}px`;
-      fab.style.top = `${savedPosition.y}px`;
+      applyPosition(savedPosition.x, savedPosition.y);
     } else if (opts.fabPosition && opts.fabPosition.x !== null) {
-      fab.style.right = 'auto';
-      fab.style.bottom = 'auto';
-      fab.style.left = `${opts.fabPosition.x}px`;
-      fab.style.top = `${opts.fabPosition.y}px`;
+      applyPosition(opts.fabPosition.x, opts.fabPosition.y);
     }
 
-    // Attach event listeners
-    fab.addEventListener('pointerdown', handlePointerDown);
-    fab.addEventListener('click', handleClick);
+    // Use mousedown for better control over drag vs click
+    fab.addEventListener('mousedown', handleMouseDown);
+    fab.addEventListener('touchstart', handleTouchStart, { passive: false });
 
     // Inject into editor container
     const editorEl = editor.getContainer();
@@ -59,18 +57,25 @@ export default (editor, opts = {}, state) => {
   };
 
   /**
+   * Applies position to FAB
+   */
+  const applyPosition = (x, y) => {
+    fab.style.right = 'auto';
+    fab.style.bottom = 'auto';
+    fab.style.left = `${x}px`;
+    fab.style.top = `${y}px`;
+  };
+
+  /**
    * Retrieves saved FAB position from sessionStorage
    */
   const getSavedPosition = () => {
     try {
       const saved = sessionStorage.getItem(storageKey);
-      if (saved) {
-        return JSON.parse(saved);
-      }
+      return saved ? JSON.parse(saved) : null;
     } catch (e) {
-      console.warn('Failed to load FAB position:', e);
+      return null;
     }
-    return null;
   };
 
   /**
@@ -80,115 +85,148 @@ export default (editor, opts = {}, state) => {
     try {
       sessionStorage.setItem(storageKey, JSON.stringify({ x, y }));
     } catch (e) {
-      console.warn('Failed to save FAB position:', e);
+      // Ignore storage errors
     }
   };
 
   /**
-   * Handles pointer down for drag initiation
+   * Handle mouse down - start potential drag
    */
-  const handlePointerDown = (e) => {
+  const handleMouseDown = (e) => {
+    if (e.button !== 0) return; // Only left click
+    
+    e.preventDefault();
+    startDrag(e.clientX, e.clientY);
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  /**
+   * Handle touch start - start potential drag
+   */
+  const handleTouchStart = (e) => {
+    if (e.touches.length !== 1) return;
+    
+    const touch = e.touches[0];
+    startDrag(touch.clientX, touch.clientY);
+    
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd);
+    document.addEventListener('touchcancel', handleTouchEnd);
+  };
+
+  /**
+   * Initialize drag tracking
+   */
+  const startDrag = (clientX, clientY) => {
+    startX = clientX;
+    startY = clientY;
+    hasDragged = false;
+    
+    // Get current position
     const rect = fab.getBoundingClientRect();
-    dragOffset.x = e.clientX - rect.left;
-    dragOffset.y = e.clientY - rect.top;
-
-    document.addEventListener('pointermove', handlePointerMove);
-    document.addEventListener('pointerup', handlePointerUp);
-  };
-
-  /**
-   * Handles pointer move during drag
-   */
-  const handlePointerMove = (e) => {
-    if (!isDragging) {
-      // Start dragging after small movement threshold
-      isDragging = true;
-      fab.classList.add(`${pfx}-dragging`);
-    }
-
     const container = editor.getContainer() || document.body;
     const containerRect = container.getBoundingClientRect();
+    
+    startLeft = rect.left - containerRect.left;
+    startTop = rect.top - containerRect.top;
+  };
 
-    // Calculate new position relative to container
-    let newX = e.clientX - containerRect.left - dragOffset.x;
-    let newY = e.clientY - containerRect.top - dragOffset.y;
+  /**
+   * Handle mouse move during drag
+   */
+  const handleMouseMove = (e) => {
+    e.preventDefault();
+    updateDrag(e.clientX, e.clientY);
+  };
 
-    // Constrain within container bounds
+  /**
+   * Handle touch move during drag
+   */
+  const handleTouchMove = (e) => {
+    if (e.touches.length !== 1) return;
+    e.preventDefault();
+    
+    const touch = e.touches[0];
+    updateDrag(touch.clientX, touch.clientY);
+  };
+
+  /**
+   * Update drag position
+   */
+  const updateDrag = (clientX, clientY) => {
+    const deltaX = clientX - startX;
+    const deltaY = clientY - startY;
+    
+    // Check if we've moved past threshold
+    if (!hasDragged) {
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      if (distance < DRAG_THRESHOLD) return;
+      
+      hasDragged = true;
+      fab.classList.add(`${pfx}-dragging`);
+      
+      // Close chatbot panel when dragging starts
+      if (state.isOpen) {
+        state.togglePanel();
+      }
+    }
+    
+    // Calculate new position
+    const container = editor.getContainer() || document.body;
+    const containerRect = container.getBoundingClientRect();
     const fabWidth = fab.offsetWidth;
     const fabHeight = fab.offsetHeight;
     
+    let newX = startLeft + deltaX;
+    let newY = startTop + deltaY;
+    
+    // Constrain to container
     newX = Math.max(0, Math.min(newX, containerRect.width - fabWidth));
     newY = Math.max(0, Math.min(newY, containerRect.height - fabHeight));
-
-    // Apply position
-    fab.style.right = 'auto';
-    fab.style.bottom = 'auto';
-    fab.style.left = `${newX}px`;
-    fab.style.top = `${newY}px`;
-
-    // Also update panel position if open
-    if (state.isOpen) {
-      updatePanelPosition(newX, newY);
-    }
+    
+    applyPosition(newX, newY);
   };
 
   /**
-   * Handles pointer up to end drag
+   * Handle mouse up - end drag or trigger click
    */
-  const handlePointerUp = (e) => {
-    document.removeEventListener('pointermove', handlePointerMove);
-    document.removeEventListener('pointerup', handlePointerUp);
+  const handleMouseUp = (e) => {
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+    endDrag();
+  };
 
-    if (isDragging) {
+  /**
+   * Handle touch end - end drag or trigger click
+   */
+  const handleTouchEnd = (e) => {
+    document.removeEventListener('touchmove', handleTouchMove);
+    document.removeEventListener('touchend', handleTouchEnd);
+    document.removeEventListener('touchcancel', handleTouchEnd);
+    endDrag();
+  };
+
+  /**
+   * End drag and save position or toggle panel
+   */
+  const endDrag = () => {
+    fab.classList.remove(`${pfx}-dragging`);
+    
+    if (hasDragged) {
       // Save final position
+      const rect = fab.getBoundingClientRect();
       const container = editor.getContainer() || document.body;
       const containerRect = container.getBoundingClientRect();
-      const fabRect = fab.getBoundingClientRect();
       
-      const x = fabRect.left - containerRect.left;
-      const y = fabRect.top - containerRect.top;
-      savePosition(x, y);
-
-      fab.classList.remove(`${pfx}-dragging`);
-      isDragging = false;
-    }
-  };
-
-  /**
-   * Handles FAB click to toggle chatbot panel
-   */
-  const handleClick = (e) => {
-    // Only toggle if not ending a drag
-    if (!isDragging) {
+      savePosition(rect.left - containerRect.left, rect.top - containerRect.top);
+    } else {
+      // It was a click, not a drag
       state.togglePanel();
     }
-  };
-
-  /**
-   * Updates the chatbot panel position relative to FAB
-   */
-  const updatePanelPosition = (fabX, fabY) => {
-    const panel = document.querySelector(`.${pfx}-panel`);
-    if (panel) {
-      const container = editor.getContainer() || document.body;
-      const containerRect = container.getBoundingClientRect();
-      const panelWidth = panel.offsetWidth;
-      const panelHeight = panel.offsetHeight;
-      const fabWidth = fab.offsetWidth;
-
-      // Position panel above FAB, adjusting if near edges
-      let panelX = fabX + fabWidth - panelWidth;
-      let panelY = fabY - panelHeight - 10;
-
-      // Ensure panel stays within viewport
-      if (panelX < 10) panelX = 10;
-      if (panelY < 10) panelY = fabY + fab.offsetHeight + 10;
-
-      panel.style.right = 'auto';
-      panel.style.bottom = 'auto';
-      panel.style.left = `${panelX}px`;
-      panel.style.top = `${panelY}px`;
-    }
+    
+    hasDragged = false;
   };
 
   /**
@@ -215,8 +253,8 @@ export default (editor, opts = {}, state) => {
    */
   const destroy = () => {
     if (fab) {
-      fab.removeEventListener('pointerdown', handlePointerDown);
-      fab.removeEventListener('click', handleClick);
+      fab.removeEventListener('mousedown', handleMouseDown);
+      fab.removeEventListener('touchstart', handleTouchStart);
       fab.remove();
       fab = null;
     }
@@ -228,7 +266,6 @@ export default (editor, opts = {}, state) => {
   return {
     getFAB,
     getPosition,
-    updatePanelPosition,
     destroy
   };
 };
