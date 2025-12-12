@@ -1,12 +1,8 @@
 {
   "name": "grapesjs-ai-agent",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "GrapesJS AI Agent",
   "main": "dist/index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/a-hakim/grapesjs-ai-agent.git"
-  },
   "scripts": {
     "start": "grapesjs-cli serve",
     "build": "grapesjs-cli build",
