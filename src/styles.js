@@ -17,10 +17,9 @@ export default (editor, opts = {}) => {
       width: 56px;
       height: 56px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #007370 0%, #007370 100%);
       border: none;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -31,7 +30,6 @@ export default (editor, opts = {}) => {
 
     .${pfx}-fab:hover {
       transform: scale(1.1);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
     }
 
     .${pfx}-fab:active {
@@ -44,9 +42,9 @@ export default (editor, opts = {}) => {
     }
 
     .${pfx}-fab svg {
-      width: 28px;
-      height: 28px;
-      fill: white;
+      width: 32px;
+      height: 32px;
+      stroke: white;
     }
 
     /* ========================================
@@ -58,9 +56,8 @@ export default (editor, opts = {}) => {
       right: 20px;
       width: ${opts.panelWidth || 360}px;
       height: ${opts.panelHeight || 480}px;
-      background: #1a1a2e;
+      background: #09090B;
       border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
       display: flex;
       flex-direction: column;
       z-index: 999;
@@ -82,8 +79,8 @@ export default (editor, opts = {}) => {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 8px 8px 8px 16px;
+      background: linear-gradient(135deg, #007370 0%, #007370 100%);
       color: white;
     }
 
@@ -153,14 +150,14 @@ export default (editor, opts = {}) => {
 
     .${pfx}-message-assistant {
       align-self: flex-start;
-      background: #2d2d44;
+      background: #ffffff1a;
       color: #e0e0e0;
       border-bottom-left-radius: 4px;
     }
 
     .${pfx}-message-user {
       align-self: flex-end;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #007370 0%, #007370 100%);
       color: white;
       border-bottom-right-radius: 4px;
     }
@@ -183,7 +180,7 @@ export default (editor, opts = {}) => {
       align-items: center;
       gap: 8px;
       padding: 12px 16px;
-      background: #2d2d44;
+      background: #ffffff1a;
       border-radius: 16px;
       border-bottom-left-radius: 4px;
     }
@@ -196,7 +193,7 @@ export default (editor, opts = {}) => {
     .${pfx}-loading-dot {
       width: 8px;
       height: 8px;
-      background: #667eea;
+      background: #007370;
       border-radius: 50%;
       animation: ${pfx}-bounce 1.4s infinite ease-in-out;
     }
@@ -215,10 +212,10 @@ export default (editor, opts = {}) => {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      padding: 8px 16px;
-      background: #16162a;
+      padding: 8px 12px;
+      background: #18181B;
       min-height: 36px;
-      border-top: 1px solid #2d2d44;
+      border-top: 1px solid #ffffff1a;
     }
 
     .${pfx}-badges:empty {
@@ -229,10 +226,10 @@ export default (editor, opts = {}) => {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #007370 0%, #007370 100%);
       color: white;
       padding: 4px 10px;
-      border-radius: 14px;
+      border-radius: 8px;
       font-family: 'Monaco', 'Menlo', monospace;
       font-size: 11px;
     }
@@ -265,16 +262,16 @@ export default (editor, opts = {}) => {
     .${pfx}-input-area {
       display: flex;
       gap: 8px;
-      padding: 12px 16px;
-      background: #16162a;
-      border-top: 1px solid #2d2d44;
+      padding: 12px 12px;
+      background: #18181B;
+      border-top: 1px solid #ffffff1a;
     }
 
     .${pfx}-input {
       flex: 1;
-      background: #2d2d44;
+      background: #ffffff1a;
       border: 1px solid #3d3d5c;
-      border-radius: 24px;
+      border-radius: 8px;
       padding: 10px 16px;
       color: #e0e0e0;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -287,11 +284,11 @@ export default (editor, opts = {}) => {
     }
 
     .${pfx}-input:focus {
-      border-color: #667eea;
+      border-color: #007370;
     }
 
     .${pfx}-input::placeholder {
-      color: #6a6a8a;
+      color: #a3a3a3;
     }
 
     .${pfx}-submit-btn {
@@ -299,7 +296,7 @@ export default (editor, opts = {}) => {
       height: 40px;
       min-width: 40px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #007370 0%, #007370 100%);
       border: none;
       cursor: pointer;
       display: flex;
@@ -310,7 +307,6 @@ export default (editor, opts = {}) => {
 
     .${pfx}-submit-btn:hover {
       transform: scale(1.05);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
     }
 
     .${pfx}-submit-btn:disabled {
@@ -342,15 +338,14 @@ export default (editor, opts = {}) => {
       align-items: center;
       justify-content: center;
       height: 100%;
-      color: #6a6a8a;
+      color: #a3a3a3;
       text-align: center;
       padding: 20px;
     }
 
     .${pfx}-empty svg {
-      width: 48px;
-      height: 48px;
-      fill: #6a6a8a;
+      width: 64px;
+      height: 64px;
       margin-bottom: 16px;
     }
 
@@ -358,11 +353,12 @@ export default (editor, opts = {}) => {
       margin: 0;
       font-size: 14px;
       line-height: 1.5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
     /* Toolbar Button */
     .${pfx}-toolbar-btn {
-      display: flex;
+      display: inline-block;
       align-items: center;
       justify-content: center;
     }
@@ -370,6 +366,7 @@ export default (editor, opts = {}) => {
     .${pfx}-toolbar-btn svg {
       width: 16px;
       height: 16px;
+      fill: none;
     }
   `;
 
