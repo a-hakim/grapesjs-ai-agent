@@ -169,7 +169,11 @@ export default (editor, opts = {}) => {
         }
 
         // Trigger change event for undo stack
-        component.trigger('change');
+        try {
+          component.trigger('change');
+        } catch (err) {
+          console.warn(`Post-update event error for component "${id}":`, err);
+        }
 
         results.success.push({ id, component });
         console.log(`Successfully updated component "${id}"`);

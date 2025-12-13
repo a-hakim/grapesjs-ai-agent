@@ -76,6 +76,7 @@ const editor = grapesjs.init({
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `api` | `string` | `''` | Required. API endpoint for chatbot requests. |
+| `headers` | `object` | `{}` | Optional. Additional headers for API requests. |
 | `fabPosition` | `object` | `{ x: null, y: null }` | Starting coordinates for the FAB. |
 | `panelWidth` | `number` | `360` | Width of the chatbot panel in pixels. |
 | `panelHeight` | `number` | `480` | Height of the chatbot panel in pixels. |
@@ -135,6 +136,10 @@ editor.AiAgent.open();
 editor.AiAgent.close();
 editor.AiAgent.toggle();
 editor.AiAgent.isOpen();
+
+// Visibility control
+editor.AiAgent.show();
+editor.AiAgent.hide();
 
 // Component management
 editor.AiAgent.addComponent('component-id');

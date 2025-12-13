@@ -189,6 +189,57 @@ export default (editor, opts = {}) => {
     },
 
     /**
+     * Shows the AI Agent UI (FAB, Panel, and Toolbar buttons)
+     */
+    show: () => {
+      // Show FAB
+      const fab = fabModule?.getFAB();
+      if (fab) {
+        fab.style.display = '';
+      }
+
+      // Remove global style that hides toolbar buttons
+      // We look for the specific style tag we added in hide()
+      const hiddenStyle = document.getElementById(`${options.classPrefix || 'gaia'}-hidden-toolbar`);
+      if (hiddenStyle) {
+        hiddenStyle.remove();
+      }
+    },
+
+    /**
+     * Hides the AI Agent UI (FAB, Panel, and Toolbar buttons)
+     */
+    hide: () => {
+      // Close panel if open
+      if (state.isOpen) {
+        state.togglePanel();
+      }
+
+      // Hide FAB
+      const fab = fabModule?.getFAB();
+      if (fab) {
+        fab.style.display = 'none';
+      }
+
+      // Hide Toolbar buttons globally via CSS
+      // This is efficient and handles buttons on all components, existing or new
+      const pfx = options.classPrefix || 'gaia';
+      const styleId = `${pfx}-hidden-toolbar`;
+      
+      if (!document.getElementById(styleId)) {
+        const styleEl = document.createElement('style');
+        styleEl.id = styleId;
+        // Target the specific toolbar button class
+        styleEl.textContent = `
+          .${pfx}-toolbar-btn {
+            display: none !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+      }
+    },
+
+    /**
      * Adds a component ID to the chat input as a badge
      * @param {string} componentId - The component ID to add
      */
