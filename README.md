@@ -1,18 +1,15 @@
 # GrapesJS AI Agent
 
-A GrapesJS plugin that adds an AI-powered chatbot interface for component modification assistance.
+A GrapesJS plugin that adds an AI-powered chatbot interface for modifying page components through natural language.
 
 ## Features
 
-- 🎯 **Draggable FAB** - Floating Action Button that can be positioned anywhere in the editor
-- 💬 **Chatbot Interface** - Clean, modern chat panel for AI interactions
-- 🔗 **Component Integration** - Select components and reference them in your chat messages
-- 🔄 **Live Modifications** - AI responses can directly update component HTML
-- 💾 **Session Persistence** - FAB position and chat history persist during the session
-
-## Demo
-
-![GrapesJS AI Agent Demo](https://via.placeholder.com/800x400/1a1a2e/667eea?text=GrapesJS+AI+Agent)
+- **Draggable FAB** - Floating Action Button that can be positioned anywhere in the editor
+- **Chatbot Interface** - Clean, modern chat panel for AI interactions
+- **Component Integration** - Select components and reference them in chat messages
+- **Live Modifications** - AI responses directly update component HTML
+- **Session Persistence** - FAB position and chat history persist during the session
+- **Follow-up Context** - Subsequent messages automatically reference previously selected components
 
 ## Installation
 
@@ -30,12 +27,6 @@ A GrapesJS plugin that adds an AI-powered chatbot interface for component modifi
 npm i grapesjs-ai-agent
 ```
 
-### Git
-
-```bash
-git clone https://github.com/a-hakim/grapesjs-ai-agent.git
-```
-
 ## Usage
 
 ### Browser
@@ -47,14 +38,13 @@ git clone https://github.com/a-hakim/grapesjs-ai-agent.git
 
 <div id="gjs"></div>
 
-<script type="text/javascript">
+<script>
   var editor = grapesjs.init({
     container: '#gjs',
     plugins: ['grapesjs-ai-agent'],
     pluginsOpts: {
       'grapesjs-ai-agent': {
-        api: 'https://your-api-endpoint.com/chat',
-        // ... other options
+        api: 'https://your-api-endpoint.com/chat'
       }
     }
   });
@@ -75,7 +65,7 @@ const editor = grapesjs.init({
     [aiAgentPlugin]: {
       api: 'https://your-api-endpoint.com/chat',
       panelWidth: 400,
-      panelHeight: 500,
+      panelHeight: 500
     }
   }
 });
@@ -85,11 +75,14 @@ const editor = grapesjs.init({
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `api` | `string` | `''` | **Required.** API endpoint for chatbot requests. |
+| `api` | `string` | `''` | Required. API endpoint for chatbot requests. |
 | `fabPosition` | `object` | `{ x: null, y: null }` | Starting coordinates for the FAB. |
 | `panelWidth` | `number` | `360` | Width of the chatbot panel in pixels. |
 | `panelHeight` | `number` | `480` | Height of the chatbot panel in pixels. |
 | `classPrefix` | `string` | `'gaia'` | CSS class prefix to avoid conflicts. |
+| `chatTitle` | `string` | `'AI Assistant'` | Custom title for the chat panel header. |
+| `inputPlaceholder` | `string` | `'Type your message...'` | Custom placeholder text for the input field. |
+| `emptyMessage` | `string` | `'Hello! Select components...'` | Custom message shown when chat is empty. |
 | `i18n` | `object` | `{}` | Localization overrides. |
 
 ## API Integration
@@ -126,41 +119,58 @@ Your API should return:
 }
 ```
 
-## Component Toolbar Integration
+The `modifications` object maps component IDs to their new HTML. The plugin will automatically update the corresponding components in the editor.
 
-When you select any component in the editor, a new **"Send to AI Chat"** button appears in the component toolbar. Clicking it adds the component's ID as a badge in the chat input, allowing you to reference multiple components in a single message.
+## Component Toolbar
+
+When you select any component in the editor, a "Send to AI Chat" button appears in the component toolbar. Clicking it adds the component's ID as a badge in the chat input, allowing you to reference multiple components in a single message.
 
 ## Public API
 
 The plugin exposes methods via `editor.AiAgent`:
 
 ```js
-// Open/close the chatbot panel
+// Panel control
 editor.AiAgent.open();
 editor.AiAgent.close();
 editor.AiAgent.toggle();
-
-// Check if panel is open
 editor.AiAgent.isOpen();
 
-// Manage components in chat
+// Component management
 editor.AiAgent.addComponent('component-id');
 editor.AiAgent.removeComponent('component-id');
 editor.AiAgent.getPendingComponents();
 
-// Manage chat history
+// Chat history
 editor.AiAgent.getHistory();
 editor.AiAgent.clearHistory();
 
-// Access API module directly
+// API module access
 const api = editor.AiAgent.api();
 ```
 
+## Demo Backend
+
+A demo backend server is included for testing. It proxies requests to OpenRouter.
+
+1. Set your API key in `scripts/demo-server.js`:
+   ```js
+   const OPENROUTER_API_KEY = 'your-key-here';
+   ```
+
+2. Run both frontend and backend:
+   ```bash
+   npm start
+   ```
+
+3. The demo server runs at `http://localhost:3000/api/chat`
+
+See `backend_prompt.md` for the system prompt and security guidelines used by the demo server.
+
 ## Styling
 
-The plugin uses a CSS class prefix (default: `gaia`) to avoid conflicts. You can customize the appearance by overriding these CSS classes or setting a custom `classPrefix`.
+The plugin uses a CSS class prefix (default: `gaia`) to avoid conflicts. Override these classes to customize:
 
-Key classes:
 - `.gaia-fab` - Floating Action Button
 - `.gaia-panel` - Chatbot panel container
 - `.gaia-message` - Chat message bubbles
@@ -169,44 +179,19 @@ Key classes:
 
 ## Development
 
-Clone the repository:
-
 ```bash
+# Clone repository
 git clone https://github.com/a-hakim/grapesjs-ai-agent.git
 cd grapesjs-ai-agent
-```
 
-Install dependencies:
-
-```bash
+# Install dependencies
 npm install
-```
 
-Start the dev server:
-
-```bash
+# Start dev server (frontend + demo backend)
 npm start
-```
 
-Build for production:
-
-```bash
+# Build for production
 npm run build
-```
-
-## File Structure
-
-```
-src/
-├── index.js      # Main plugin entry point
-├── styles.js     # CSS injection module
-├── fab.js        # Floating Action Button
-├── chatbot.js    # Chatbot panel UI
-├── api.js        # API communication
-├── toolbar.js    # Component toolbar integration
-├── blocks.js     # (Empty - plugin adds no blocks)
-└── locale/
-    └── en.js     # English translations
 ```
 
 ## License

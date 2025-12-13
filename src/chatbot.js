@@ -46,13 +46,13 @@ export default (editor, opts = {}, state, fabModule, apiModule) => {
 
     panel.innerHTML = `
       <div class="${pfx}-header">
-        <h3 class="${pfx}-header-title">AI Assistant</h3>
+        <h3 class="${pfx}-header-title">${opts.chatTitle || 'AI Assistant'}</h3>
         <button class="${pfx}-close-btn" aria-label="Close">${closeIcon}</button>
       </div>
       <div class="${pfx}-messages"></div>
       <div class="${pfx}-badges"></div>
       <div class="${pfx}-input-area">
-        <textarea class="${pfx}-input" placeholder="Type your message..." rows="1"></textarea>
+        <textarea class="${pfx}-input" placeholder="${opts.inputPlaceholder || 'Type your message...'}" rows="1"></textarea>
         <button class="${pfx}-submit-btn" aria-label="Submit">${sendIcon}</button>
       </div>
     `;
@@ -258,7 +258,7 @@ export default (editor, opts = {}, state, fabModule, apiModule) => {
     emptyEl.className = `${pfx}-empty`;
     emptyEl.innerHTML = `
       ${emptyIcon}
-      <p>Hello! Select components and describe what changes you'd like me to make.</p>
+      <p>${opts.emptyMessage || "Hello! Select components and describe what changes you'd like me to make."}</p>
     `;
     messagesContainer.appendChild(emptyEl);
   };
@@ -311,7 +311,7 @@ export default (editor, opts = {}, state, fabModule, apiModule) => {
   };
 
   /**
-   * Positions the panel intelligently based on FAB location
+   * Positions the panel relative to FAB using viewport coordinates
    */
   const updatePanelPosition = () => {
     if (!panel || !fabModule) return;
@@ -319,52 +319,54 @@ export default (editor, opts = {}, state, fabModule, apiModule) => {
     const fab = fabModule.getFAB();
     if (!fab) return;
 
-    const container = editor.getContainer() || document.body;
-    const containerRect = container.getBoundingClientRect();
     const fabRect = fab.getBoundingClientRect();
     const panelWidth = opts.panelWidth || 360;
     const panelHeight = opts.panelHeight || 480;
+    const gap = 10;
 
-    // Calculate FAB position relative to container
-    const fabX = fabRect.left - containerRect.left;
-    const fabY = fabRect.top - containerRect.top;
-    const fabCenterX = fabX + fabRect.width / 2;
-    const fabCenterY = fabY + fabRect.height / 2;
-
-    // Determine available space in each direction
-    const spaceRight = containerRect.width - fabRect.right + containerRect.left;
-    const spaceLeft = fabX;
-    const spaceBottom = containerRect.height - fabRect.bottom + containerRect.top;
-    const spaceTop = fabY;
+    // Use FAB's viewport position directly
+    const fabLeft = fabRect.left;
+    const fabTop = fabRect.top;
+    const fabRight = fabRect.right;
+    const fabBottom = fabRect.bottom;
+    const fabCenterX = fabLeft + fabRect.width / 2;
+    const fabCenterY = fabTop + fabRect.height / 2;
 
     let panelX, panelY;
-    const gap = 10; // Gap between FAB and panel
 
-    // Horizontal positioning: prefer right of FAB, then left
-    if (spaceRight >= panelWidth + gap) {
-      // Position to the right of FAB
-      panelX = fabX + fabRect.width + gap;
-    } else if (spaceLeft >= panelWidth + gap) {
+    // Determine best horizontal position based on FAB location in viewport
+    const spaceRight = window.innerWidth - fabRight;
+    const spaceLeft = fabLeft;
+
+    if (spaceLeft >= panelWidth + gap) {
       // Position to the left of FAB
-      panelX = fabX - panelWidth - gap;
+      panelX = fabLeft - panelWidth - gap;
+    } else if (spaceRight >= panelWidth + gap) {
+      // Position to the right of FAB
+      panelX = fabRight + gap;
     } else {
-      // Center horizontally, align with FAB
-      panelX = Math.max(gap, Math.min(fabCenterX - panelWidth / 2, containerRect.width - panelWidth - gap));
+      // Center horizontally
+      panelX = Math.max(gap, (window.innerWidth - panelWidth) / 2);
     }
 
-    // Vertical positioning: prefer above FAB, then below, then align
+    // Determine best vertical position based on FAB location in viewport
+    const spaceTop = fabTop;
+    const spaceBottom = window.innerHeight - fabBottom;
+
     if (spaceTop >= panelHeight + gap) {
-      // Position above FAB
-      panelY = fabY - panelHeight - gap;
+      // Position above FAB, align bottom of panel with top of FAB
+      panelY = fabTop - panelHeight - gap;
     } else if (spaceBottom >= panelHeight + gap) {
       // Position below FAB
-      panelY = fabY + fabRect.height + gap;
+      panelY = fabBottom + gap;
     } else {
-      // Align vertically with FAB center
-      panelY = Math.max(gap, Math.min(fabCenterY - panelHeight / 2, containerRect.height - panelHeight - gap));
+      // Align vertically centered with FAB
+      panelY = Math.max(gap, fabCenterY - panelHeight / 2);
+      panelY = Math.min(panelY, window.innerHeight - panelHeight - gap);
     }
 
-    // Apply position
+    // Apply position using viewport coordinates (position: fixed)
+    panel.style.position = 'fixed';
     panel.style.right = 'auto';
     panel.style.bottom = 'auto';
     panel.style.left = `${panelX}px`;

@@ -38,6 +38,15 @@ const defaults = {
   // Optional: CSS class prefix to avoid conflicts
   classPrefix: 'gaia',
   
+  // Optional: Custom chat title
+  chatTitle: 'AI Assistant',
+  
+  // Optional: Custom input placeholder
+  inputPlaceholder: 'Type your message...',
+  
+  // Optional: Custom empty state message
+  emptyMessage: "Hello! Select components and describe what changes you'd like me to make.",
+  
   // Optional: i18n overrides
   i18n: {}
 };
