@@ -1,6 +1,6 @@
 {
   "name": "grapesjs-ai-agent",
-  "version": "1.0.6",
+  "version": "1.0.9",
   "description": "GrapesJS AI Agent",
   "main": "dist/index.js",
   "scripts": {

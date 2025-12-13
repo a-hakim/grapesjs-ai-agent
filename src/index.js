@@ -26,6 +26,9 @@ const defaults = {
   // Required: API endpoint for chatbot requests
   api: '',
   
+  // Optional: Custom headers for API requests (e.g. for authentication)
+  headers: {},
+  
   // Optional: Starting FAB position { x: number, y: number }
   fabPosition: { x: null, y: null },
   

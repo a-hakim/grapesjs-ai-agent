@@ -24,7 +24,7 @@ export default (editor, opts = {}) => {
       align-items: center;
       justify-content: center;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 1000;
+      z-index: 15;
       outline: none;
     }
 
@@ -60,7 +60,7 @@ export default (editor, opts = {}) => {
       border-radius: 16px;
       display: flex;
       flex-direction: column;
-      z-index: 999;
+      z-index: 15;
       overflow: hidden;
       opacity: 0;
       transform: translateY(20px) scale(0.95);
@@ -118,7 +118,7 @@ export default (editor, opts = {}) => {
     .${pfx}-messages {
       flex: 1;
       overflow-y: auto;
-      padding: 16px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
       gap: 12px;

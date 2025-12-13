@@ -5,6 +5,7 @@
 
 export default (editor, opts = {}) => {
   const apiEndpoint = opts.api || '';
+  const customHeaders = opts.headers || {};
 
   /**
    * Sends a message to the AI API
@@ -44,7 +45,8 @@ export default (editor, opts = {}) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          ...customHeaders
         },
         body: JSON.stringify(payload)
       });
@@ -152,14 +154,14 @@ export default (editor, opts = {}) => {
         }
 
         // Restore classes if they were removed
-        if (classes.length > 0) {
-          const currentClasses = component.getClasses();
-          classes.forEach((cls) => {
-            if (!currentClasses.includes(cls)) {
-              component.addClass(cls);
-            }
-          });
-        }
+        // if (classes.length > 0) {
+        //   const currentClasses = component.getClasses();
+        //   classes.forEach((cls) => {
+        //     if (!currentClasses.includes(cls)) {
+        //       component.addClass(cls);
+        //     }
+        //   });
+        // }
 
         // Trigger re-render
         if (component.view) {
