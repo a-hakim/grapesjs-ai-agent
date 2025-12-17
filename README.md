@@ -2,10 +2,8 @@
 
 A GrapesJS plugin that adds an AI-powered chatbot interface for modifying page components through natural language.
 
-<video width="854" height="480" controls>
-  <source src="./demo.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+<video src="https://raw.githubusercontent.com/a-hakim/grapesjs-ai-agent/refs/heads/master/demo.mp4" width="600" controls></video>
+
 
 ## Features
 
