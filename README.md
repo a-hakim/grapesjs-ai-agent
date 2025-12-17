@@ -2,6 +2,11 @@
 
 A GrapesJS plugin that adds an AI-powered chatbot interface for modifying page components through natural language.
 
+<video width="854" height="480" controls>
+  <source src="./demo.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
 ## Features
 
 - **Draggable FAB** - Floating Action Button that can be positioned anywhere in the editor
@@ -201,8 +206,4 @@ npm run build
 
 ## License
 
-MIT
-
-## Author
-
-[a-hakim](https://github.com/a-hakim)
+MIT License
